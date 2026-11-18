@@ -1,162 +1,171 @@
 #!/usr/bin/env python3
-"""Build entry.png — the final one-image summary of 17 November 2026.
+"""Compose entry.png, the one-image summary of Tuesday 17 November 2026.
 
-Build-time tool only (uses Pillow, which the grader never runs): it takes
-the seven-panel editorial collage in front-page.png, lays it under a
-masthead that names the day, and captions it with the day's seven biggest
-headlines in short, large, high-contrast type that stays legible when the
-image is scaled down to ~300 px wide.
+This is a build-time helper (Pillow needed here only; the grader never
+imports it). It reads the day's stories from news.json, takes the
+seven-panel editorial collage in front-page.png, and renders a newspaper
+front page around it: a masthead naming the day, the collage as the
+artwork band, then one headline card per story in big bold type that
+stays readable at thumbnail size.
 
-The result is written to entry.png beside this script, at 1024x1024 and at
-most 1 MiB: a true PNG is used when it fits, otherwise the same pixels are
-saved as JPEG bytes under the entry.png name (the competition rules tell
-PNG and JPEG apart by their first bytes and allow either under that name).
+The page is written to entry.png next to this file, always 1024x1024
+and never over 1 MiB. PNG is preferred; if the PNG does not fit, the
+same pixels go out as JPEG bytes under the entry.png name (the rules
+tell the two apart by magic bytes and accept either).
 
-Run:  python3 build_image.py   ->  writes entry.png
+Usage: python3 build_image.py
 """
 
 import io
-import os
+import json
+from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ART_PATH = os.path.join(HERE, "front-page.png")
-OUT_PATH = os.path.join(HERE, "entry.png")
+ROOT = Path(__file__).resolve().parent
+COLLAGE_FILE = ROOT / "front-page.png"
+STORIES_FILE = ROOT / "news.json"
+TARGET_FILE = ROOT / "entry.png"
 
-W = H = 1024
-MAX_BYTES = 1048576
+PAGE = 1024            # the page is square
+LIMIT = 1024 * 1024    # entry size cap in bytes
+PAGE_BG = (247, 241, 227)
+BAND = (18, 41, 62)
+PAPER = (255, 255, 255)
+TEXT = (16, 24, 32)
+ACCENT = (140, 43, 27)
+HIGHLIGHT = (232, 199, 102)
+CARD_EDGE = (201, 184, 148)
 
-NAVY = (18, 41, 62)
-CREAM = (247, 241, 227)
-WHITE = (255, 255, 255)
-INK = (16, 24, 32)
-RED = (140, 43, 27)
-GOLD = (232, 199, 102)
-CARD_BORDER = (201, 184, 148)
-
-DATE_LINE = "Tuesday, 17 November 2026"
-MASTHEAD = "THE WORLD IN ONE IMAGE"
-FOOTER = "The whole day in one picture - 17 November 2026"
-
-# (tag, headline) — wording kept short on purpose so the type can stay big.
-STORIES = [
-    ("LEAD", "Trump, Xi and Putin set for three-way summit in Shenzhen"),
-    ("IRAN", "US strikes Iran's Qeshm Island as Hormuz tanker burns"),
-    ("UKRAINE", "Ukraine strikes the Crimean Bridge again"),
-    ("QUAD", "Quad leaders unveil critical minerals pacts in Manila"),
-    ("CHIPS", "US tightens AI chip rules to block China's back door"),
-    ("MARKETS", "Wall Street falls as Nvidia stays in focus"),
-    ("HEALTH", "US loses its measles elimination status"),
+FONT_PATHS = [
+    Path("/usr/share/fonts/truetype/liberation"),
+    Path("/usr/share/fonts/truetype/dejavu"),
 ]
 
-FONT_DIR = "/usr/share/fonts/truetype/liberation"
-DEJAVU_DIR = "/usr/share/fonts/truetype/dejavu"
+
+def load_font(name, size):
+    """Find a Liberation font, falling back to the DejaVu twin."""
+    for directory in FONT_PATHS:
+        candidate = directory / name
+        if candidate.exists():
+            return ImageFont.truetype(str(candidate), size)
+        dejavu = directory / name.replace("Liberation", "DejaVu")
+        if dejavu.exists():
+            return ImageFont.truetype(str(dejavu), size)
+    raise SystemExit(f"font not found: {name}")
 
 
-def font(filename, size, fallback_dir=DEJAVU_DIR):
-    path = os.path.join(FONT_DIR, filename)
-    if not os.path.exists(path):
-        path = os.path.join(fallback_dir, filename.replace("Liberation", "DejaVu"))
-    return ImageFont.truetype(path, size)
+def load_stories():
+    """Return (dateline, [(tag, headline), ...]) from news.json."""
+    data = json.loads(STORIES_FILE.read_text(encoding="utf-8"))
+    cards = [(data["lead"]["tag"], data["lead"]["headline"])]
+    cards += [(item["tag"], item["headline"]) for item in data["stories"]]
+    return data["dateline"], cards
 
 
-def wrap(draw, text, fnt, max_width):
-    """Greedy word wrap measured with the real font, never by char count."""
-    lines, cur = [], ""
+def split_lines(draw, text, font, width):
+    """Wrap a headline by measuring candidate lines with the font."""
+    done, pending = [], ""
     for word in text.split():
-        trial = (cur + " " + word).strip()
-        if draw.textlength(trial, font=fnt) <= max_width:
-            cur = trial
+        trial = f"{pending} {word}".strip()
+        if draw.textlength(trial, font=font) <= width:
+            pending = trial
         else:
-            if cur:
-                lines.append(cur)
-            cur = word
-    if cur:
-        lines.append(cur)
-    return lines
+            done.append(pending)
+            pending = word
+    if pending:
+        done.append(pending)
+    return done
 
 
-def build_canvas():
-    img = Image.new("RGB", (W, H), CREAM)
-    draw = ImageDraw.Draw(img)
-
-    # --- Masthead: navy band, title in cream, the date in gold, both big.
-    draw.rectangle([0, 0, W, 126], fill=NAVY)
-    title_font = font("LiberationSerif-Bold.ttf", 46)
-    date_font = font("LiberationSans-Bold.ttf", 33)
-    draw.text((W // 2, 10), MASTHEAD, font=title_font, fill=CREAM,
+def paint_header(draw, dateline):
+    """Navy masthead: paper title on top, the day's date in gold."""
+    draw.rectangle((0, 0, PAGE, 126), fill=BAND)
+    title = load_font("LiberationSerif-Bold.ttf", 46)
+    day = load_font("LiberationSans-Bold.ttf", 33)
+    draw.text((PAGE / 2, 10), "THE WORLD IN ONE IMAGE", font=title,
+              fill=PAGE_BG, anchor="ma")
+    draw.text((PAGE / 2, 68), dateline, font=day, fill=HIGHLIGHT,
               anchor="ma")
-    draw.text((W // 2, 68), DATE_LINE, font=date_font, fill=GOLD,
-              anchor="ma")
-    draw.rectangle([0, 126, W, 132], fill=RED)
-
-    # --- The collage art, cover-cropped to a wide band under the masthead.
-    art = Image.open(ART_PATH).convert("RGB")
-    art = ImageOps.fit(art, (W - 48, 396), Image.LANCZOS)
-    img.paste(art, (24, 144))
-    draw.rectangle([24, 144, W - 24, 144 + 396], outline=NAVY, width=4)
-
-    # --- Headline cards: one per story, white on cream, ink-black bold
-    # type with a coloured tag chip so each story reads at a glance.
-    headline_font = font("LiberationSans-Bold.ttf", 28)
-    tag_font = font("LiberationSans-Bold.ttf", 19)
-    text_x = 196
-    text_width = W - 48 - text_x + 24 - 16
-    y = 556
-    for i, (tag, headline) in enumerate(STORIES):
-        lines = wrap(draw, headline, headline_font, text_width)
-        row_h = len(lines) * 34 + 16
-        accent = RED if i == 0 else NAVY
-        draw.rectangle([24, y, W - 24, y + row_h], fill=WHITE,
-                       outline=CARD_BORDER, width=2)
-        draw.rectangle([24, y, 36, y + row_h], fill=accent)
-        # Tag chip: fixed-width label so the headlines line up in a column.
-        draw.rectangle([48, y + 10, 184, y + row_h - 10], fill=accent)
-        tag_w = draw.textlength(tag, font=tag_font)
-        draw.text((48 + (136 - tag_w) / 2, y + row_h / 2), tag,
-                  font=tag_font, fill=WHITE, anchor="lm")
-        ty = y + 8
-        for line in lines:
-            draw.text((text_x, ty), line, font=headline_font, fill=INK)
-            ty += 34
-        y += row_h + 8
-
-    # --- Footer strip repeats the date so the day survives any crop.
-    footer_font = font("LiberationSans-Bold.ttf", 23)
-    draw.rectangle([0, H - 44, W, H], fill=NAVY)
-    draw.text((W // 2, H - 38), FOOTER, font=footer_font, fill=GOLD,
-              anchor="ma")
-    assert y <= H - 52, f"caption cards overflow: last card ends at {y}"
-    return img
+    draw.rectangle((0, 126, PAGE, 132), fill=ACCENT)
 
 
-def save_within_limit(img, path):
-    """PNG if it fits in 1 MiB, else JPEG bytes (rules allow either)."""
-    buf = io.BytesIO()
-    img.save(buf, format="PNG", optimize=True)
-    data = buf.getvalue()
-    if len(data) <= MAX_BYTES:
-        with open(path, "wb") as fh:
-            fh.write(data)
-        return "PNG", len(data)
-    for quality in (88, 84, 80, 76, 72, 68, 64, 60):
-        buf = io.BytesIO()
-        img.save(buf, format="JPEG", quality=quality, optimize=True,
-                 progressive=False, subsampling=1)
-        data = buf.getvalue()
-        if len(data) <= MAX_BYTES:
-            with open(path, "wb") as fh:
-                fh.write(data)
-            return "JPEG", len(data)
-    raise SystemExit("could not fit the image within 1 MiB")
+def paint_art(page):
+    """Paste the collage, cover-cropped, as the band under the masthead."""
+    art = Image.open(COLLAGE_FILE).convert("RGB")
+    band = ImageOps.fit(art, (PAGE - 48, 396), Image.LANCZOS)
+    page.paste(band, (24, 144))
+    frame = ImageDraw.Draw(page)
+    frame.rectangle((24, 144, PAGE - 24, 540), outline=BAND, width=4)
+
+
+def paint_cards(draw, cards):
+    """One white card per story: colour tab, tag chip, headline text."""
+    headline_font = load_font("LiberationSans-Bold.ttf", 28)
+    chip_font = load_font("LiberationSans-Bold.ttf", 19)
+    top = 556
+    for index, (tag, headline) in enumerate(cards):
+        colour = ACCENT if index == 0 else BAND
+        wrapped = split_lines(draw, headline, headline_font, 788)
+        height = 34 * len(wrapped) + 16
+        draw.rectangle((24, top, PAGE - 24, top + height), fill=PAPER,
+                       outline=CARD_EDGE, width=2)
+        draw.rectangle((24, top, 36, top + height), fill=colour)
+        chip_right = 48 + draw.textlength(tag, font=chip_font) + 30
+        draw.rectangle((48, top + 10, chip_right, top + height - 10),
+                       fill=colour)
+        draw.text((48 + (chip_right - 48) / 2, top + height / 2), tag,
+                  font=chip_font, fill=PAPER, anchor="mm")
+        line_y = top + 8
+        for line in wrapped:
+            draw.text((chip_right + 14, line_y), line, font=headline_font,
+                      fill=TEXT)
+            line_y += 34
+        top += height + 8
+    if top > PAGE - 52:
+        raise SystemExit(f"headline cards overflow the page: end {top}")
+
+
+def paint_footer(draw, dateline):
+    """Closing strip repeats the date so any crop keeps the day."""
+    note = load_font("LiberationSans-Bold.ttf", 23)
+    draw.rectangle((0, PAGE - 44, PAGE, PAGE), fill=BAND)
+    draw.text((PAGE / 2, PAGE - 38),
+              f"The whole day in one picture - {dateline.split(', ', 1)[1]}",
+              font=note, fill=HIGHLIGHT, anchor="ma")
+
+
+def encode_under_limit(page):
+    """Serialise as PNG, else as the best JPEG that fits the cap."""
+    buffer = io.BytesIO()
+    page.save(buffer, format="PNG", optimize=True)
+    payload = buffer.getvalue()
+    if len(payload) <= LIMIT:
+        return payload, "PNG"
+    quality = 88
+    while quality >= 60:
+        buffer = io.BytesIO()
+        page.save(buffer, format="JPEG", quality=quality, optimize=True,
+                  progressive=False, subsampling=1)
+        payload = buffer.getvalue()
+        if len(payload) <= LIMIT:
+            return payload, "JPEG"
+        quality -= 4
+    raise SystemExit("the page cannot be encoded within 1 MiB")
 
 
 def main():
-    img = build_canvas()
-    fmt, size = save_within_limit(img, OUT_PATH)
-    print(f"Wrote {OUT_PATH}")
-    print(f"format={fmt} bytes={size} dimensions={img.size[0]}x{img.size[1]}")
+    dateline, cards = load_stories()
+    page = Image.new("RGB", (PAGE, PAGE), PAGE_BG)
+    draw = ImageDraw.Draw(page)
+    paint_header(draw, dateline)
+    paint_art(page)
+    paint_cards(draw, cards)
+    paint_footer(draw, dateline)
+    payload, kind = encode_under_limit(page)
+    TARGET_FILE.write_bytes(payload)
+    print(f"Wrote {TARGET_FILE}")
+    print(f"format={kind} bytes={len(payload)} dimensions={PAGE}x{PAGE}")
 
 
 if __name__ == "__main__":

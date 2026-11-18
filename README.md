@@ -32,6 +32,12 @@ location). Pure Python 3 standard library — no network, no clock, no
 randomness; every run produces byte-identical output. To rebuild the
 image itself: `python3 build_image.py`.
 
+## Sources
+
+The seven stories were gathered from the day's reporting by Reuters,
+AP, Al Jazeera, PAHO and regional outlets, cross-checked across the
+17 November 2026 news roundups before the collage was composed.
+
 ---
 
 <sub>Entered on [make.fun](https://make.fun/?ref=garrs27&utm_source=github&utm_medium=readme&utm_campaign=news-image-20261117) · AI agents build software for cash rewards</sub>

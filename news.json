@@ -1,1 +1,79 @@
-{"also_noted":["UK, Australia, Canada and Italy urge Israel to open Gaza crossings for aid as winter rains flood shelters (Asas Press World News Digest; Profile News/UN, 17 Nov 2026)","Japan scrambles fighter jets and protests after Russian aircraft violate its airspace (Asas Press, 17 Nov 2026)","COP31 draft deal in Antalya calls for faster fossil-fuel phase-out and $120bn a year in climate finance (NewsTrendToday morning roundup, 17 Nov 2026)"],"date":"2026-11-17","dateline":"Tuesday, 17 November 2026","lead":{"headline":"Trump, Xi and Putin set for first three-way summit in Shenzhen","section":"LEAD STORY","sources":["Standard Topic - World Story Archive, November 17, 2026","NewsTrendToday - Morning Headlines Roundup, 17 November 2026 (AFP/Dawn)"],"summary":"The US, Chinese and Russian presidents converge on Shenzhen for the APEC leaders' meeting, with the first-ever trilateral summit due on Thursday; Trump arrived on Tuesday and Putin reached Shenzhen for the summit."},"stories":[{"headline":"US strikes Iran's Qeshm Island as mines and drones batter Hormuz shipping","section":"MIDDLE EAST","sources":["Profile News - November 17 2026 World News (Reuters)","Standard Topic - World Story Archive, November 17, 2026","Al Jazeera via Summarized News - Bahrain thwarts drone attack, Iran claims targeting US military radar, 2026/11/17"],"summary":"US warplanes hit a missile launch site on Qeshm Island in retaliation for Iranian attacks on US personnel and assets; a gas tanker burned off Oman, 24 seafarers were evacuated, and Bahrain intercepted Iranian drones aimed at a US radar."},{"headline":"Ukraine strikes the Crimean Bridge again as Russia pounds Kyiv","section":"WAR IN EUROPE","sources":["Asas Press - World News Digest: Top Stories of November 17, 2026","Al Jazeera - Ukrainian drone attack kills two in Crimea as Kyiv targets Kerch bridge, 2026/11/17","Profile News - November 17 2026 World News"],"summary":"Ukrainian drones and missiles struck the Crimean Bridge, closing it after severe damage; Zelenskyy said the operation answered Russian attacks on Ukrainian infrastructure."},{"headline":"Quad leaders announce new critical minerals pacts at Manila summit","section":"ASIA DIPLOMACY","sources":["Standard Topic - World Story Archive, November 17, 2026"],"summary":"Trump announced critical-minerals agreements and the Quad leaders unveiled defence deals in Manila, where Modi also opened the 23rd ASEAN-India Summit."},{"headline":"Washington tightens AI chip rules to limit China's indirect access","section":"TECH & TRADE","sources":["Standard Topic - World Story Archive, November 17, 2026"],"summary":"The Trump administration issued rules requiring export licences for advanced AI chips and servers used in overseas data centres, aimed at stopping Chinese firms from using them remotely."},{"headline":"Wall Street falls as Nvidia remains in focus","section":"MARKETS","sources":["Profile News - November 17 2026 World News (Associated Press)"],"summary":"Major US indexes closed lower on Tuesday under pressure from artificial intelligence and technology stocks, with Nvidia's earnings in focus."},{"headline":"United States loses its measles elimination status","section":"HEALTH","sources":["Profile News - November 17 2026 World News (Pan American Health Organization)"],"summary":"The Pan American Health Organization announced the US had lost its measles elimination status after evidence showed uninterrupted transmission of the virus."}]}
+{
+  "also_noted": [
+    "UK, Australia, Canada and Italy urge Israel to open Gaza crossings for aid as winter rains flood shelters (Asas Press World News Digest; Profile News/UN, 17 Nov 2026)",
+    "Japan scrambles fighter jets and protests after Russian aircraft violate its airspace (Asas Press, 17 Nov 2026)",
+    "COP31 draft deal in Antalya calls for faster fossil-fuel phase-out and $120bn a year in climate finance (NewsTrendToday morning roundup, 17 Nov 2026)"
+  ],
+  "date": "2026-11-17",
+  "dateline": "Tuesday, 17 November 2026",
+  "lead": {
+    "headline": "Trump, Xi and Putin set for three-way summit in Shenzhen",
+    "section": "LEAD STORY",
+    "sources": [
+      "Standard Topic - World Story Archive, November 17, 2026",
+      "NewsTrendToday - Morning Headlines Roundup, 17 November 2026 (AFP/Dawn)"
+    ],
+    "summary": "The US, Chinese and Russian presidents converge on Shenzhen for the APEC leaders' meeting, with the first-ever trilateral summit due on Thursday; Trump arrived on Tuesday and Putin reached Shenzhen for the summit.",
+    "tag": "LEAD"
+  },
+  "stories": [
+    {
+      "headline": "US strikes Iran's Qeshm Island as Hormuz tanker burns",
+      "section": "MIDDLE EAST",
+      "sources": [
+        "Profile News - November 17 2026 World News (Reuters)",
+        "Standard Topic - World Story Archive, November 17, 2026",
+        "Al Jazeera via Summarized News - Bahrain thwarts drone attack, Iran claims targeting US military radar, 2026/11/17"
+      ],
+      "summary": "US warplanes hit a missile launch site on Qeshm Island in retaliation for Iranian attacks on US personnel and assets; a gas tanker burned off Oman, 24 seafarers were evacuated, and Bahrain intercepted Iranian drones aimed at a US radar.",
+      "tag": "IRAN"
+    },
+    {
+      "headline": "Ukraine strikes the Crimean Bridge again",
+      "section": "WAR IN EUROPE",
+      "sources": [
+        "Asas Press - World News Digest: Top Stories of November 17, 2026",
+        "Al Jazeera - Ukrainian drone attack kills two in Crimea as Kyiv targets Kerch bridge, 2026/11/17",
+        "Profile News - November 17 2026 World News"
+      ],
+      "summary": "Ukrainian drones and missiles struck the Crimean Bridge, closing it after severe damage; Zelenskyy said the operation answered Russian attacks on Ukrainian infrastructure.",
+      "tag": "UKRAINE"
+    },
+    {
+      "headline": "Quad leaders unveil critical minerals pacts in Manila",
+      "section": "ASIA DIPLOMACY",
+      "sources": [
+        "Standard Topic - World Story Archive, November 17, 2026"
+      ],
+      "summary": "Trump announced critical-minerals agreements and the Quad leaders unveiled defence deals in Manila, where Modi also opened the 23rd ASEAN-India Summit.",
+      "tag": "QUAD"
+    },
+    {
+      "headline": "US tightens AI chip rules to block China's back door",
+      "section": "TECH & TRADE",
+      "sources": [
+        "Standard Topic - World Story Archive, November 17, 2026"
+      ],
+      "summary": "The Trump administration issued rules requiring export licences for advanced AI chips and servers used in overseas data centres, aimed at stopping Chinese firms from using them remotely.",
+      "tag": "CHIPS"
+    },
+    {
+      "headline": "Wall Street falls as Nvidia remains in focus",
+      "section": "MARKETS",
+      "sources": [
+        "Profile News - November 17 2026 World News (Associated Press)"
+      ],
+      "summary": "Major US indexes closed lower on Tuesday under pressure from artificial intelligence and technology stocks, with Nvidia's earnings in focus.",
+      "tag": "MARKETS"
+    },
+    {
+      "headline": "United States loses its measles elimination status",
+      "section": "HEALTH",
+      "sources": [
+        "Profile News - November 17 2026 World News (Pan American Health Organization)"
+      ],
+      "summary": "The Pan American Health Organization announced the US had lost its measles elimination status after evidence showed uninterrupted transmission of the virus.",
+      "tag": "HEALTH"
+    }
+  ]
+}
